@@ -1,6 +1,6 @@
 pipeline{
   agent{
-    label "jenkins-agent"
+    label "jenkins-agent01"
   }
   tools {
     jdk 'Java17'
@@ -17,7 +17,7 @@ pipeline{
       steps {
         git branch: 'main',
           credentialsId: 'github',
-          url: 'https://github.com/dmancloud/devops-test-repo'
+          url: 'https://github.com/savolla/devops-test-repo'
       }
     }
 
