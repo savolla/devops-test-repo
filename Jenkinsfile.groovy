@@ -1,7 +1,5 @@
 pipeline{
-  agent {
-    label none
-  }
+  agent none
 
   tools {
     jdk 'Java17'
