@@ -1,5 +1,7 @@
 pipeline{
-  agent none
+  agent {
+    label 'jenkins-agent01' 
+  }
 
   tools {
     jdk 'Java17'
@@ -16,15 +18,13 @@ pipeline{
   }
 
   stages{
-    stage("Cleanup Workspace"){
-      agent { label 'jenkins-agent01' } 
+    stage("cleanup workspace"){
       steps {
         cleanWs()
       }
     }
 
-    stage("Checkout from SCM"){
-      agent { label 'jenkins-agent01' } 
+    stage("checkout from scm"){
       steps {
         git branch: 'main',
             credentialsId: 'github',
@@ -32,69 +32,72 @@ pipeline{
       }
     }
 
-    stage("Test Application"){
-      agent { label 'jenkins-agent01' } 
+    stage("sonarqube analysis") {
       steps {
-        sh "mvn test"
+        script {
+          withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-cred') {
+            sh "mvn sonar:sonar"
+          }
+        }
       }
     }
 
-    stage("Build Application"){
-      agent { label 'jenkins-agent01' } 
+    stage("quality gate") {
+      steps {
+        script {
+          waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-cred'
+        }
+      }
+    }
+
+    stage("build application"){
       steps {
         sh "mvn clean package"
       }
     }
 
-    // stage("Sonarqube Analysis") {
-    //   agent { label 'jenkins-agent01' } 
-    //   steps {
-    //     script {
-    //       withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-cred') {
-    //         sh "mvn sonar:sonar"
-    //       }
-    //     }
-    //   }
-    // }
+    stage("test application"){
+      steps {
+        sh "mvn test"
+      }
+    }
 
-    // stage("Quality Gate") {
-    //   agent { label 'jenkins-agent01' } 
-    //   steps {
-    //     script {
-    //       waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-cred'
-    //     }
-    //   }
-    // }
-
-    // stage("Build & Push Docker Image") {
-    //   agent { label 'jenkins-agent01' } 
-    //   steps {
-    //     script {
-    //       docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
-    //         docker_image = docker.build "${IMAGE_NAME}"
-    //       }
-
-    //       docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
-    //         docker_image.push("${IMAGE_TAG}")
-    //           docker_image.push('latest')
-    //       }
-    //     }
-    //   }
-    // }
-    stage("scan for vulnerabilities of docker image") {
-      agent { label 'jenkins-agent02' } 
+    stage("build docker image") {
       steps {
         script {
-          sh '''
-            # trivy image --exit-code 1 --severity HIGH,CRITICAL emusky/devops-test-repo:latest
-            trivy image emusky/devops-test-repo:latest
-            if [ $? == 1 ]
-            then
-              echo "exit code was 1! so there are so much vulnerabilities"
-            fi
-          '''
+          docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
+            docker_image = docker.build "${IMAGE_NAME}"
+          }
         }
       }
     }
+
+    stage("scan for vulnerabilities of docker image") {
+      steps {
+        script {
+          sh 'trivy image --exit-code 1 --severity HIGH,CRITICAL emusky/devops-test-repo'
+        }
+      }
+    }
+
+    stage("push docker image") {
+      steps {
+        script {
+          docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
+            docker_image.push("${IMAGE_TAG}")
+            docker_image.push('latest')
+          }
+        }
+      }
+    }
+
+    stage("clean existing docker images") {
+      steps {
+        script {
+          sh 'docker image prune --force --all'
+        }
+      }
+    }
+
   }
 }
