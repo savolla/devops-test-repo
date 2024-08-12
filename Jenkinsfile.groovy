@@ -84,7 +84,15 @@ pipeline{
     stage("scan for vulnerabilities of docker image") {
       agent { label 'jenkins-agent02' } 
       steps {
-        sh 'trivy --exit-code 1 --severity HIGH,CRITICAL emusky/devops-test-repo:latest'
+        script {
+          sh '''
+            trivy image --exit-code 1 --severity HIGH,CRITICAL emusky/devops-test-repo:latest
+            if [ $? == 1 ]
+            then
+              echo "exit code was 1! so there are so much vulnerabilities"
+            fi
+          '''
+        }
       }
     }
   }
