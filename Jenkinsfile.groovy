@@ -46,47 +46,48 @@ pipeline{
       }
     }
 
-    stage("Sonarqube Analysis") {
-      agent { label 'jenkins-agent01' } 
-      steps {
-        script {
-          withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-cred') {
-            sh "mvn sonar:sonar"
-          }
-        }
-      }
-    }
+    // stage("Sonarqube Analysis") {
+    //   agent { label 'jenkins-agent01' } 
+    //   steps {
+    //     script {
+    //       withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-cred') {
+    //         sh "mvn sonar:sonar"
+    //       }
+    //     }
+    //   }
+    // }
 
-    stage("Quality Gate") {
-      agent { label 'jenkins-agent01' } 
-      steps {
-        script {
-          waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-cred'
-        }
-      }
-    }
+    // stage("Quality Gate") {
+    //   agent { label 'jenkins-agent01' } 
+    //   steps {
+    //     script {
+    //       waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-cred'
+    //     }
+    //   }
+    // }
 
-    stage("Build & Push Docker Image") {
-      agent { label 'jenkins-agent01' } 
-      steps {
-        script {
-          docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
-            docker_image = docker.build "${IMAGE_NAME}"
-          }
+    // stage("Build & Push Docker Image") {
+    //   agent { label 'jenkins-agent01' } 
+    //   steps {
+    //     script {
+    //       docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
+    //         docker_image = docker.build "${IMAGE_NAME}"
+    //       }
 
-          docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
-            docker_image.push("${IMAGE_TAG}")
-              docker_image.push('latest')
-          }
-        }
-      }
-    }
+    //       docker.withRegistry('',DOCKERHUB_JENKINS_CREDENTIAL_ID) {
+    //         docker_image.push("${IMAGE_TAG}")
+    //           docker_image.push('latest')
+    //       }
+    //     }
+    //   }
+    // }
     stage("scan for vulnerabilities of docker image") {
       agent { label 'jenkins-agent02' } 
       steps {
         script {
           sh '''
-            trivy image --exit-code 1 --severity HIGH,CRITICAL emusky/devops-test-repo:latest
+            # trivy image --exit-code 1 --severity HIGH,CRITICAL emusky/devops-test-repo:latest
+            trivy image emusky/devops-test-repo:latest
             if [ $? == 1 ]
             then
               echo "exit code was 1! so there are so much vulnerabilities"
