@@ -31,27 +31,27 @@ pipeline{
     //     sh "trivy fs --format table -o fs.html ."
     //   }
     // }
-    // stage('sonarqube scan') {
-    //   steps {
-    //     withSonarQubeEnv('sonarqube') {
-    //       sh ''' 
-    //         $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Blogging-app -Dsonar.projectKey=Blogging-app \
-    //         -Dsonar.java.binaries=target
-    //         '''
-    //     }
-    //   }
-    // }
-    // stage('build') {
-    //   steps {
-    //     sh "mvn package"
-    //   }
-    // }
-    // stage('publish artifact to nexus') {
-    //   steps {
-    //     withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jenkins-tool-jdk17-temurin', maven: 'jenkins-tool-maven', mavenSettingsConfig: '', traceability: true) {
-    //       sh "mvn deploy"
-    //     }
-    //   }
-    // }
+    stage('sonarqube scan') {
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          sh ''' 
+            $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Blogging-app -Dsonar.projectKey=Blogging-app \
+            -Dsonar.java.binaries=target
+            '''
+        }
+      }
+    }
+    stage('build') {
+      steps {
+        sh "mvn package"
+      }
+    }
+    stage('publish artifact to nexus') {
+      steps {
+        withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jenkins-tool-jdk17-temurin', maven: 'jenkins-tool-maven', mavenSettingsConfig: '', traceability: true) {
+          sh "mvn deploy"
+        }
+      }
+    }
   }
 }
