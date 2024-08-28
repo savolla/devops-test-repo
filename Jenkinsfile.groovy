@@ -41,17 +41,17 @@ pipeline{
         }
       }
     }
-    // stage('build') {
-    //   steps {
-    //     sh "mvn package"
-    //   }
-    // }
-    // stage('publish artifact to nexus') {
-    //   steps {
-    //     withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jenkins-tool-jdk17-temurin', maven: 'jenkins-tool-maven', mavenSettingsConfig: '', traceability: true) {
-    //       sh "mvn deploy"
-    //     }
-    //   }
-    // }
+    stage('build') {
+      steps {
+        sh "mvn package"
+      }
+    }
+    stage('publish artifact to nexus') {
+      steps {
+        withMaven(globalMavenSettingsConfig: 'maven-settings', jdk: 'jenkins-tool-jdk17-temurin', maven: 'jenkins-tool-maven', mavenSettingsConfig: '', traceability: true) {
+          sh "mvn deploy"
+        }
+      }
+    }
   }
 }
