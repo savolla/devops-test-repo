@@ -31,16 +31,16 @@ pipeline{
         sh "trivy fs --format table -o fs.html ."
       }
     }
-    // stage('sonarqube scan') {
-    //   steps {
-    //     withSonarQubeEnv('sonarqube') {
-    //       sh ''' 
-    //         $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Blogging-app -Dsonar.projectKey=Blogging-app \
-    //         -Dsonar.java.binaries=target
-    //         '''
-    //     }
-    //   }
-    // }
+    stage('sonarqube scan') {
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          sh ''' 
+            $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Blogging-app -Dsonar.projectKey=Blogging-app \
+            -Dsonar.java.binaries=target
+            '''
+        }
+      }
+    }
     // stage('build') {
     //   steps {
     //     sh "mvn package"
