@@ -53,5 +53,28 @@ pipeline{
         }
       }
     }
+    stage('docker build and tag') {
+      steps {
+        script {
+          withDockerRegistry(credentialsId: 'jenkins-credential-dockerhub', toolName: 'jenkins-tool-docker') {
+            sh "docker build -t emusky/bloggingapp:latest ."
+          }
+        }
+      }
+    }
+    stage('trivy image scan') {
+      steps {
+        sh "trivy image --format table -o image.html emusky/bloggingapp:latest"
+      }
+    }
+    stage('docker push to dockerhub') {
+      steps {
+        script {
+          withDockerRegistry(credentialsId: 'jenkins-credential-dockerhub', toolName: 'jenkins-tool-docker') {
+            sh "docker push emusky/bloggingapp:latest"
+          }
+        }
+      }
+    }
   }
 }
