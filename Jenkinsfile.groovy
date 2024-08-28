@@ -2,10 +2,10 @@ pipeline{
   agent any
     
   tools {
-    sonarqube 'jenkins-tool-sonarqube-scanner'
-    docker 'jenkins-tool-docker'
-    maven3 'jenkins-tool-maven'
-    jdk 'jenkins-tool-jdk17-temurin'
+    // sonarqube 'jenkins-tool-sonarqube-scanner'
+    // docker 'jenkins-tool-docker'
+    // maven3 'jenkins-tool-maven'
+    // jdk 'jenkins-tool-jdk17-temurin'
   }
   environment {
     SCANNER_HOME = tool 'jenkins-tool-sonarqube-scanner'
