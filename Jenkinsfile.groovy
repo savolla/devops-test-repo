@@ -1,12 +1,12 @@
 pipeline{
   agent any
     
-  tools {
+  // tools {
     // sonarqube 'jenkins-tool-sonarqube-scanner'
     // docker 'jenkins-tool-docker'
-    maven3 'jenkins-tool-maven'
-    jdk 'jenkins-tool-jdk17-temurin'
-  }
+    // maven3 'jenkins-tool-maven'
+    // jdk 'jenkins-tool-jdk17-temurin'
+  // }
   environment {
     SCANNER_HOME = tool 'jenkins-tool-sonarqube-scanner'
   }
@@ -16,16 +16,16 @@ pipeline{
         git branch: 'devops-pipeline-002-application-source', credentialsId: 'jenkins-credential-github', url: 'https://github.com/savolla/devops-test-repo.git'
       }
     }
-    // stage('compile') {
-    //   steps {
-    //     sh "mvn compile"
-    //   }
-    // }
-    // stage('test') {
-    //   steps {
-    //     sh "mvn test"
-    //   }
-    // }
+    stage('compile') {
+      steps {
+        sh "mvn compile"
+      }
+    }
+    stage('test') {
+      steps {
+        sh "mvn test"
+      }
+    }
     // stage('trivy fs/dep scan') {
     //   steps {
     //     sh "trivy fs --format table -o fs.html ."
