@@ -31,7 +31,7 @@ pipeline{
         sh "trivy fs --format table -o fs.html ."
       }
     }
-    stage('trivy fs/dep scan') {
+    stage('sonarqube scan') {
       steps {
         withSonarQubeEnv('sonarqube') {
           sh ''' 
