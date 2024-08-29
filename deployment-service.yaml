@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: bloggingapp
-  replicas: 6
+  replicas: 2
   template:
     metadata:
       labels:
